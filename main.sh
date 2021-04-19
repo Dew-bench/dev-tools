@@ -1,7 +1,6 @@
 #!/bin/bash
 
 
-
 echo "
 ▀██▀▀█▄                             ▀██                               ▀██      
  ██   ██    ▄▄▄▄  ▄▄▄ ▄▄▄ ▄▄▄        ██ ▄▄▄    ▄▄▄▄  ▄▄ ▄▄▄     ▄▄▄▄   ██ ▄▄   
@@ -19,6 +18,8 @@ repos=($(curl -s  https://github.com/Dew-bench | grep "codeRepository" | awk -F 
 repoClean=()
 repoNames=()
 
+$(mkdir -p $workdir)
+
 for repo in "${repos[@]}"
 do
     repoClean+="$gitURL${repo%hovercard}" # remove "hovercard"
@@ -32,7 +33,7 @@ done
 echoMenu(){
     echo "1 - clone all git repos"
     echo "2 - stage * & commit with message & push repo"
-    echo "3 - set repos workdir"
+    echo "3 - set repos workdir -- DONT"
     echo "0 - exit"
     printf ">> "
 }
@@ -43,7 +44,7 @@ cloneGit(){
     do
         repoClean=${repo%hovercard} # remove "hovercard"
         echo "Cloning "$gitURL$repoClean" ..."
-        $(git clone "$gitURL$repoClean")
+        $(cd $workdir && git clone "$gitURL$repoClean")
     done
 }
 
@@ -63,10 +64,7 @@ stageAndPush(){
     echo "Input Commit msg"
     printf ">> "
     read msg
-    $(cd ./$workdir)
-    $(git stage *)
-    $(git commit -a -m \"$msg\")
-    $(git push)
+    $(cd ./$workdir/$name && git stage * && git commit -a -m \"$msg\" && git push)
 }
 
 while :
@@ -80,8 +78,6 @@ do
         exit
     elif [ $input == "1" ]
     then 
-        $(mkdir $workdir)
-        $(cd $workdir)
         cloneGit
     elif [ $input == "2" ]
     then
